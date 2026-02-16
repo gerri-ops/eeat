@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-E-A-T Content Grader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- Header -->
+<header class="app-header">
+  <div style="display:flex;align-items:center;">
+    <h1><span>E-E-A-T</span> Content Grader</h1>
+    <span class="subtitle">Score. Prove. Fix.</span>
+  </div>
+  <div id="headerActions" style="display:none;">
+    <button class="btn btn-secondary" onclick="resetUI()">New Analysis</button>
+  </div>
+</header>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <p id="loadingText">Analyzing content...</p>
+</div>
+
+<div class="container">
+
+  <!-- Input Panel -->
+  <section class="input-panel" id="inputPanel">
+    <h2>Analyze Content</h2>
+
+    <div class="input-tabs" id="inputTabs">
+      <button class="active" data-type="url">URL</button>
+      <button data-type="html">HTML</button>
+      <button data-type="text">Text</button>
+    </div>
+
+    <!-- URL input -->
+    <div id="inputUrl">
+      <div class="input-row">
+        <input type="url" id="urlInput" placeholder="https://example.com/your-page" />
+      </div>
+    </div>
+
+    <!-- HTML input -->
+    <div id="inputHtml" style="display:none;">
+      <textarea id="htmlInput" placeholder="Paste raw HTML here..."></textarea>
+    </div>
+
+    <!-- Text input -->
+    <div id="inputText" style="display:none;">
+      <textarea id="textInput" placeholder="Paste your article text here..."></textarea>
+    </div>
+
+    <!-- Optional fields -->
+    <div class="input-row">
+      <input type="text" id="authorInput" placeholder="Author name (optional)" />
+      <input type="text" id="siteInput" placeholder="Site name (optional)" />
+      <select id="presetInput">
+        <option value="">Auto-detect preset</option>
+        <option value="general">General</option>
+        <option value="legal_practice_area">Legal &mdash; Practice Area</option>
+        <option value="legal_location">Legal &mdash; Location Page</option>
+        <option value="legal_faq">Legal &mdash; FAQ</option>
+        <option value="legal_guide">Legal &mdash; Long Guide</option>
+        <option value="legal_case_results">Legal &mdash; Case Results</option>
+        <option value="medical">Medical</option>
+        <option value="finance">Finance</option>
+        <option value="product_review">Product Review</option>
+        <option value="diy_tutorial">DIY Tutorial</option>
+      </select>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin-top:0.5rem;">
+      <button class="btn" id="analyzeBtn" onclick="runAnalysis()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+        Analyze
+      </button>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section id="results">
+
+    <!-- Summary -->
+    <div class="summary-bar" id="summaryBar"></div>
+
+    <!-- Export -->
+    <div class="export-bar">
+      <button class="btn btn-secondary" onclick="exportJSON()">Export JSON</button>
+      <button class="btn btn-secondary" onclick="exportChecklist()">Export Checklist</button>
+    </div>
+
+    <!-- Score Dashboard -->
+    <div class="score-dashboard">
+      <div class="overall-score-card">
+        <div class="score-ring">
+          <svg width="160" height="160" viewBox="0 0 160 160">
+            <circle class="bg" cx="80" cy="80" r="70" fill="none" stroke-width="10"/>
+            <circle class="fill" id="scoreRing" cx="80" cy="80" r="70" fill="none"
+                    stroke-width="10" stroke-dasharray="439.82" stroke-dashoffset="439.82"/>
+          </svg>
+          <div class="score-text">
+            <div class="score-num" id="overallScore">0</div>
+            <div class="score-label">Overall</div>
+          </div>
+        </div>
+        <div class="badges" id="badgesArea"></div>
+      </div>
+
+      <div class="sub-scores" id="subScores"></div>
+    </div>
+
+    <!-- Result Tabs -->
+    <div class="result-tabs" id="resultTabs">
+      <button class="active" data-tab="fixes">Priority Fixes</button>
+      <button data-tab="evidence">Evidence View</button>
+      <button data-tab="claims">Claims Audit</button>
+      <button data-tab="compliance">Compliance</button>
+    </div>
+
+    <!-- Fixes Tab -->
+    <div class="tab-panel active" id="tab-fixes"></div>
+
+    <!-- Evidence Tab -->
+    <div class="tab-panel" id="tab-evidence"></div>
+
+    <!-- Claims Tab -->
+    <div class="tab-panel" id="tab-claims"></div>
+
+    <!-- Compliance Tab -->
+    <div class="tab-panel" id="tab-compliance"></div>
+
+  </section>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
