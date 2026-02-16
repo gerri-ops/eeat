@@ -6,8 +6,11 @@ import logging
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
 
 from app.models import AnalysisRequest, ContentPreset, InputType
 from app.parser.extractor import extract_from_html, extract_from_text
@@ -22,6 +25,21 @@ app = FastAPI(
     description="Score content for Experience, Expertise, Authoritativeness, and Trust",
     version="1.0.0",
 )
+
+
+class NoCacheStaticMiddleware(BaseHTTPMiddleware):
+    """Prevent browsers from caching stale static files."""
+
+    async def dispatch(self, request: Request, call_next):
+        response: Response = await call_next(request)
+        if request.url.path == "/" or request.url.path.startswith("/static"):
+            response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+        return response
+
+
+app.add_middleware(NoCacheStaticMiddleware)
 
 STATIC_DIR = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
