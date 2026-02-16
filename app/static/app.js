@@ -49,12 +49,20 @@ async function runAnalysis() {
       body: JSON.stringify(body),
     });
     if (!resp.ok) {
-      const err = await resp.json();
-      throw new Error(err.detail || "Analysis failed");
+      let detail = "Analysis failed (status " + resp.status + ")";
+      try {
+        const err = await resp.json();
+        detail = err.detail || detail;
+      } catch (_) {
+        detail += " — " + (await resp.text()).substring(0, 200);
+      }
+      throw new Error(detail);
     }
     currentData = await resp.json();
     renderResults(currentData);
   } catch (e) {
+    console.error("Analysis error:", e);
+    document.getElementById("inputPanel").style.display = "";
     alert("Error: " + e.message);
   } finally {
     showLoading(false);
