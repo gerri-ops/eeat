@@ -85,8 +85,8 @@ function showLoading(show) {
 /* ── Render all results ──────────────────────────────────────────────────── */
 function renderResults(data) {
   document.getElementById("inputPanel").style.display = "none";
-  document.getElementById("results").style.display = "";
-  document.getElementById("headerActions").style.display = "";
+  document.getElementById("results").style.display = "block";
+  document.getElementById("headerActions").style.display = "flex";
 
   renderSummary(data);
   renderScoreDashboard(data.score);
