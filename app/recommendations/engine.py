@@ -15,6 +15,7 @@ from app.models import (
     EffortLevel,
     EvidenceGrade,
     ExtractedContent,
+    FixScope,
     ImpactLevel,
     Recommendation,
     YMYLRisk,
@@ -137,7 +138,7 @@ def _signal_to_recommendation(
 ) -> Recommendation | None:
     """Map a missing signal name to a concrete recommendation with copy block."""
 
-    templates: dict[str, tuple[str, str, str, EffortLevel, ImpactLevel, float]] = {
+    templates: dict[str, tuple[str, str, str, EffortLevel, ImpactLevel, float, FixScope]] = {
         "Disclaimer / legal notice present": (
             "Add a legal disclaimer",
             "Legal content without disclaimers can mislead readers and create liability risk.",
@@ -145,6 +146,7 @@ def _signal_to_recommendation(
             EffortLevel.EASY,
             ImpactLevel.HIGH,
             4.0,
+            FixScope.PAGE_LEVEL,
         ),
         "About page linked": (
             "Add or link an About page",
@@ -153,6 +155,7 @@ def _signal_to_recommendation(
             EffortLevel.MODERATE,
             ImpactLevel.HIGH,
             3.0,
+            FixScope.NEW_PAGE,
         ),
         "Contact information present": (
             "Add visible contact information",
@@ -161,6 +164,7 @@ def _signal_to_recommendation(
             EffortLevel.EASY,
             ImpactLevel.HIGH,
             3.0,
+            FixScope.GLOBAL,
         ),
         "Privacy policy linked": (
             "Add a privacy policy link",
@@ -169,6 +173,7 @@ def _signal_to_recommendation(
             EffortLevel.EASY,
             ImpactLevel.MEDIUM,
             1.5,
+            FixScope.GLOBAL,
         ),
         "Terms of service linked": (
             "Add terms of service link",
@@ -177,6 +182,7 @@ def _signal_to_recommendation(
             EffortLevel.EASY,
             ImpactLevel.LOW,
             1.0,
+            FixScope.GLOBAL,
         ),
         "Editorial / review policy": (
             "Add an editorial policy page",
@@ -185,6 +191,7 @@ def _signal_to_recommendation(
             EffortLevel.MODERATE,
             ImpactLevel.HIGH,
             3.5,
+            FixScope.NEW_PAGE,
         ),
         "Dates shown (published / updated)": (
             "Add publish and update dates",
@@ -193,6 +200,7 @@ def _signal_to_recommendation(
             EffortLevel.EASY,
             ImpactLevel.HIGH,
             3.0,
+            FixScope.PAGE_LEVEL,
         ),
         "Outbound citation count and quality": (
             "Add authoritative citations to support claims",
@@ -201,6 +209,7 @@ def _signal_to_recommendation(
             EffortLevel.MODERATE,
             ImpactLevel.HIGH,
             4.0,
+            FixScope.PAGE_LEVEL,
         ),
         "Affiliate / advertising disclosure": (
             "Add an affiliate / advertising disclosure",
@@ -209,6 +218,7 @@ def _signal_to_recommendation(
             EffortLevel.EASY,
             ImpactLevel.MEDIUM,
             2.0,
+            FixScope.PAGE_LEVEL,
         ),
         "Structured data (schema.org)": (
             "Add schema.org structured data",
@@ -217,6 +227,7 @@ def _signal_to_recommendation(
             EffortLevel.MODERATE,
             ImpactLevel.MEDIUM,
             2.0,
+            FixScope.GLOBAL,
         ),
         "First-hand experience language": (
             "Add first-hand experience details",
@@ -225,6 +236,7 @@ def _signal_to_recommendation(
             EffortLevel.MODERATE,
             ImpactLevel.HIGH,
             3.5,
+            FixScope.PAGE_LEVEL,
         ),
         "Procedural / step-by-step detail": (
             "Add step-by-step procedural detail",
@@ -233,6 +245,7 @@ def _signal_to_recommendation(
             EffortLevel.MODERATE,
             ImpactLevel.MEDIUM,
             2.5,
+            FixScope.PAGE_LEVEL,
         ),
         "Real-world caveats and limitations": (
             "Add caveats and honest limitations",
@@ -241,6 +254,7 @@ def _signal_to_recommendation(
             EffortLevel.EASY,
             ImpactLevel.MEDIUM,
             2.0,
+            FixScope.PAGE_LEVEL,
         ),
         "Original images / media": (
             "Add original images or screenshots",
@@ -249,6 +263,7 @@ def _signal_to_recommendation(
             EffortLevel.MODERATE,
             ImpactLevel.MEDIUM,
             2.0,
+            FixScope.PAGE_LEVEL,
         ),
         "Domain-specific terminology": (
             "Use more precise domain terminology",
@@ -257,6 +272,7 @@ def _signal_to_recommendation(
             EffortLevel.EASY,
             ImpactLevel.MEDIUM,
             2.0,
+            FixScope.PAGE_LEVEL,
         ),
         "Proper scoping and pro referrals": (
             "Add audience scoping and professional referrals",
@@ -267,6 +283,7 @@ def _signal_to_recommendation(
             EffortLevel.EASY,
             ImpactLevel.HIGH,
             4.0,
+            FixScope.PAGE_LEVEL,
         ),
         "Content depth (word count + structure)": (
             "Deepen the content with more sections",
@@ -275,6 +292,7 @@ def _signal_to_recommendation(
             EffortLevel.HEAVY,
             ImpactLevel.MEDIUM,
             2.5,
+            FixScope.PAGE_LEVEL,
         ),
         "Author name present": (
             "Add a visible author name",
@@ -283,6 +301,7 @@ def _signal_to_recommendation(
             EffortLevel.EASY,
             ImpactLevel.HIGH,
             3.0,
+            FixScope.PAGE_LEVEL,
         ),
         "Author bio with credentials": (
             "Add an author bio with relevant credentials",
@@ -291,6 +310,7 @@ def _signal_to_recommendation(
             EffortLevel.EASY,
             ImpactLevel.HIGH,
             4.0,
+            FixScope.PAGE_LEVEL,
         ),
         "Dedicated author page": (
             "Create a dedicated author profile page",
@@ -299,6 +319,7 @@ def _signal_to_recommendation(
             EffortLevel.MODERATE,
             ImpactLevel.HIGH,
             3.5,
+            FixScope.NEW_PAGE,
         ),
         "Professional credentials listed": (
             "List professional credentials explicitly",
@@ -307,6 +328,7 @@ def _signal_to_recommendation(
             EffortLevel.EASY,
             ImpactLevel.HIGH,
             4.0,
+            FixScope.PAGE_LEVEL,
         ),
         "Internal linking depth": (
             "Add more internal links to related content",
@@ -315,6 +337,7 @@ def _signal_to_recommendation(
             EffortLevel.EASY,
             ImpactLevel.MEDIUM,
             2.0,
+            FixScope.PAGE_LEVEL,
         ),
         "Attorney roster / team page": (
             "Add or link an attorney team page",
@@ -323,13 +346,14 @@ def _signal_to_recommendation(
             EffortLevel.MODERATE,
             ImpactLevel.HIGH,
             3.0,
+            FixScope.NEW_PAGE,
         ),
     }
 
     if signal_name not in templates:
         return None
 
-    title, why, copy_block, effort, impact, pts = templates[signal_name]
+    title, why, copy_block, effort, impact, pts, scope = templates[signal_name]
     return Recommendation(
         title=title,
         what_to_change=title,
@@ -340,6 +364,7 @@ def _signal_to_recommendation(
         impact=impact,
         dimension=dimension,
         points_potential=pts,
+        scope=scope,
     )
 
 
@@ -360,6 +385,7 @@ def _recs_from_claims(audit: CitationAudit, is_legal: bool) -> list[Recommendati
             impact=ImpactLevel.HIGH,
             dimension="Trust",
             points_potential=min(5.0, len(unsupported) * 1.0),
+            scope=FixScope.PAGE_LEVEL,
         ))
 
     weak = [c for c in audit.claims if c.evidence_grade == EvidenceGrade.WEAKLY_SUPPORTED]
@@ -374,6 +400,7 @@ def _recs_from_claims(audit: CitationAudit, is_legal: bool) -> list[Recommendati
             impact=ImpactLevel.MEDIUM,
             dimension="Trust",
             points_potential=min(3.0, len(weak) * 0.5),
+            scope=FixScope.PAGE_LEVEL,
         ))
 
     overbroad = [c for c in audit.claims if c.evidence_grade == EvidenceGrade.NEEDS_QUALIFICATION]
@@ -389,6 +416,7 @@ def _recs_from_claims(audit: CitationAudit, is_legal: bool) -> list[Recommendati
             impact=ImpactLevel.HIGH,
             dimension="Trust",
             points_potential=min(4.0, len(overbroad) * 1.0),
+            scope=FixScope.PAGE_LEVEL,
         ))
 
     return recs
@@ -408,6 +436,7 @@ def _recs_from_compliance(flags: list[ComplianceFlag]) -> list[Recommendation]:
             impact=ImpactLevel.HIGH if flag.severity == "high" else ImpactLevel.MEDIUM,
             dimension="Trust",
             points_potential=3.0 if flag.severity == "high" else 1.5,
+            scope=FixScope.PAGE_LEVEL,
         ))
     return recs
 
@@ -430,6 +459,7 @@ def _recs_for_legal_extras(
             impact=ImpactLevel.HIGH,
             dimension="Trust",
             points_potential=4.0,
+            scope=FixScope.PAGE_LEVEL,
         ))
 
     has_how_built = any("how we" in s.text.lower() for s in content.sections)
@@ -444,6 +474,7 @@ def _recs_for_legal_extras(
             impact=ImpactLevel.MEDIUM,
             dimension="Experience",
             points_potential=2.5,
+            scope=FixScope.PAGE_LEVEL,
         ))
 
     return recs

@@ -6,7 +6,9 @@
   <title>E-E-A-T Content Grader</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css?v=2">
+  <link rel="stylesheet" href="/static/style.css?v=3">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
@@ -86,13 +88,51 @@
   <!-- Results -->
   <section id="results">
 
+    <!-- Analyzed URL Banner -->
+    <div class="analyzed-url-banner" id="analyzedUrlBanner" style="display:none;">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+      <span id="analyzedUrlText"></span>
+    </div>
+
     <!-- Summary -->
     <div class="summary-bar" id="summaryBar"></div>
 
     <!-- Export -->
     <div class="export-bar">
-      <button class="btn btn-secondary" onclick="exportJSON()">Export JSON</button>
-      <button class="btn btn-secondary" onclick="exportChecklist()">Export Checklist</button>
+      <div class="download-dropdown">
+        <button class="btn btn-secondary download-trigger" onclick="toggleDownloadMenu()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Results
+        </button>
+        <div class="download-menu" id="downloadMenu">
+          <button onclick="downloadPriorityChecklist()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            Priority Fixes Checklist (.xlsx)
+          </button>
+          <button onclick="downloadEvidenceSpreadsheet()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            Evidence View (.xlsx)
+          </button>
+          <button onclick="downloadClaimsSpreadsheet()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            Claims Audit (.xlsx)
+          </button>
+          <button onclick="downloadComplianceSpreadsheet()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            Compliance (.xlsx)
+          </button>
+          <div class="download-divider"></div>
+          <button onclick="downloadFullPDF()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Full Report (.pdf)
+          </button>
+          <div class="download-divider"></div>
+          <button onclick="exportJSON()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            Raw Data (.json)
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Score Dashboard -->
@@ -124,7 +164,20 @@
     </div>
 
     <!-- Fixes Tab -->
-    <div class="tab-panel active" id="tab-fixes"></div>
+    <div class="tab-panel active" id="tab-fixes">
+      <div class="fixes-toolbar" id="fixesToolbar">
+        <div class="filter-group">
+          <label>Filter by priority:</label>
+          <div class="filter-pills" id="priorityFilters">
+            <button class="filter-pill active" data-priority="all">All</button>
+            <button class="filter-pill" data-priority="high">High</button>
+            <button class="filter-pill" data-priority="medium">Medium</button>
+            <button class="filter-pill" data-priority="low">Low</button>
+          </div>
+        </div>
+      </div>
+      <div id="fixesContent"></div>
+    </div>
 
     <!-- Evidence Tab -->
     <div class="tab-panel" id="tab-evidence"></div>
@@ -138,6 +191,22 @@
   </section>
 </div>
 
-<script src="/static/app.js?v=2"></script>
+<!-- Tooltip definitions (hidden, referenced by JS) -->
+<div id="tooltipDefs" style="display:none;">
+  <span data-tooltip-id="risk-high">This content covers Your Money or Your Life (YMYL) topics where inaccurate information could cause significant harm — financial loss, health risks, or legal consequences. Google applies the highest scrutiny to E-E-A-T signals on these pages.</span>
+  <span data-tooltip-id="risk-medium">This content touches on topics that can moderately affect readers' wellbeing. Google applies elevated scrutiny to E-E-A-T signals, though not as strict as high-risk YMYL content.</span>
+  <span data-tooltip-id="risk-low">This content is unlikely to cause harm if inaccurate. Standard E-E-A-T expectations apply.</span>
+  <span data-tooltip-id="impact-high">Fixing this issue will have a large positive effect on your E-E-A-T score. These are typically missing trust signals or unsupported claims on YMYL content.</span>
+  <span data-tooltip-id="impact-medium">Fixing this will have a moderate positive effect on your E-E-A-T score. Worth addressing after high-impact items.</span>
+  <span data-tooltip-id="impact-low">This is a minor improvement opportunity. Address these after higher-priority fixes are in place.</span>
+  <span data-tooltip-id="scope-global_fix">A site-wide change that improves every page — like adding contact info to the footer, a privacy policy, or structured data templates.</span>
+  <span data-tooltip-id="scope-new_page">Requires creating a new page on your site — such as an About page, author profile, editorial policy, or team page.</span>
+  <span data-tooltip-id="scope-page_level">A change the author or editor can make directly on this specific page — like adding citations, disclaimers, or dates.</span>
+  <span data-tooltip-id="effort-easy">Quick win — can typically be done in under 30 minutes with a simple text edit or configuration change.</span>
+  <span data-tooltip-id="effort-moderate">Requires some research or content creation. Plan for 1–3 hours of focused work.</span>
+  <span data-tooltip-id="effort-heavy">Significant effort required — may involve writing substantial new content, creating new pages, or coordinating with multiple stakeholders.</span>
+</div>
+
+<script src="/static/app.js?v=3"></script>
 </body>
 </html>

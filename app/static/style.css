@@ -208,6 +208,33 @@ textarea {
 
 .loading-overlay p { color: var(--text-muted); font-size: 0.95rem; }
 
+/* ── Analyzed URL Banner ─────────────────────────────────────────────────── */
+
+.analyzed-url-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.analyzed-url-banner svg { flex-shrink: 0; color: var(--accent); }
+
+.analyzed-url-banner a {
+  color: var(--accent);
+  text-decoration: none;
+  word-break: break-all;
+  transition: color 0.15s;
+}
+
+.analyzed-url-banner a:hover { color: var(--accent-hover); text-decoration: underline; }
+
 /* ── Results ─────────────────────────────────────────────────────────────── */
 
 #results { display: none; }
@@ -379,6 +406,102 @@ textarea {
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
+/* ── Fixes Toolbar & Filters ─────────────────────────────────────────────── */
+
+.fixes-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.filter-group label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.filter-pills {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.filter-pill {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--font);
+}
+
+.filter-pill:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.filter-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ── Scope Groups ────────────────────────────────────────────────────────── */
+
+.scope-group {
+  margin-bottom: 1.75rem;
+}
+
+.scope-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.scope-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.scope-group-header h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.scope-count {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  background: var(--bg);
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.scope-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
 /* ── Fix Queue ───────────────────────────────────────────────────────────── */
 
 .fix-card {
@@ -406,6 +529,8 @@ textarea {
   display: flex;
   gap: 0.5rem;
   flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .fix-meta .badge-impact-high { background: var(--red-bg); color: var(--red); }
@@ -415,6 +540,19 @@ textarea {
 .fix-meta .badge-effort-easy { background: var(--green-bg); color: var(--green); }
 .fix-meta .badge-effort-moderate { background: var(--yellow-bg); color: var(--yellow); }
 .fix-meta .badge-effort-heavy { background: var(--red-bg); color: var(--red); }
+
+.fix-meta .badge-scope-global_fix {
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--blue);
+}
+.fix-meta .badge-scope-new_page {
+  background: rgba(168, 85, 247, 0.12);
+  color: #a855f7;
+}
+.fix-meta .badge-scope-page_level {
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--green);
+}
 
 .fix-body p {
   font-size: 0.85rem;
@@ -588,13 +726,71 @@ textarea {
 .compliance-flag .flag-explain { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.35rem; }
 .compliance-flag .flag-fix { font-size: 0.82rem; color: var(--green); }
 
-/* ── Export bar ──────────────────────────────────────────────────────────── */
+/* ── Export / Download bar ───────────────────────────────────────────────── */
 
 .export-bar {
   display: flex;
   gap: 0.75rem;
   justify-content: flex-end;
   margin-bottom: 1.5rem;
+}
+
+.download-dropdown {
+  position: relative;
+}
+
+.download-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  min-width: 280px;
+  z-index: 50;
+  padding: 0.5rem;
+  animation: menuFadeIn 0.15s ease;
+}
+
+.download-menu.open { display: block; }
+
+@keyframes menuFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.download-menu button {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text);
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: background 0.1s;
+  text-align: left;
+}
+
+.download-menu button:hover {
+  background: var(--bg-hover);
+}
+
+.download-menu button svg {
+  flex-shrink: 0;
+  color: var(--text-dim);
+}
+
+.download-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0.35rem 0.5rem;
 }
 
 /* ── Summary bar ─────────────────────────────────────────────────────────── */
@@ -610,6 +806,36 @@ textarea {
   line-height: 1.6;
 }
 
+/* ── Tooltip ─────────────────────────────────────────────────────────────── */
+
+.has-tooltip {
+  cursor: help;
+  position: relative;
+}
+
+.tooltip-popup {
+  display: none;
+  position: fixed;
+  z-index: 300;
+  max-width: 320px;
+  padding: 0.6rem 0.85rem;
+  background: #1e2030;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1.5;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.tooltip-popup.visible {
+  opacity: 1;
+}
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 
 @media (max-width: 768px) {
@@ -617,4 +843,9 @@ textarea {
   .sub-scores { grid-template-columns: 1fr; }
   .input-row { flex-direction: column; }
   .container { padding: 1rem; }
+  .fix-header { flex-direction: column; }
+  .fix-meta { justify-content: flex-start; }
+  .fixes-toolbar { flex-direction: column; align-items: flex-start; }
+  .scope-group-header { flex-wrap: wrap; }
+  .scope-desc { margin-left: 0; flex-basis: 100%; }
 }

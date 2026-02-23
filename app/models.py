@@ -42,6 +42,12 @@ class EvidenceGrade(str, Enum):
     NEEDS_QUALIFICATION = "needs_qualification"
 
 
+class FixScope(str, Enum):
+    GLOBAL = "global_fix"
+    NEW_PAGE = "new_page"
+    PAGE_LEVEL = "page_level"
+
+
 class EffortLevel(str, Enum):
     EASY = "easy"
     MODERATE = "moderate"
@@ -223,6 +229,7 @@ class Recommendation(BaseModel):
     impact: ImpactLevel = ImpactLevel.HIGH
     dimension: str = ""
     points_potential: float = 0.0
+    scope: FixScope = FixScope.PAGE_LEVEL
 
 
 # ── Full report ──────────────────────────────────────────────────────────────
