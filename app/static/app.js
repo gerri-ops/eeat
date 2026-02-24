@@ -609,7 +609,7 @@ function downloadFullPDF() {
   closeDownloadMenu();
 
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 14;
   let y = 20;
@@ -687,7 +687,7 @@ function downloadFullPDF() {
       ["Authoritativeness", currentData.score.authoritativeness.score, 25, currentData.score.authoritativeness.signals.filter((s) => s.found).length + "/" + currentData.score.authoritativeness.signals.length],
       ["Trust", currentData.score.trust.score, 25, currentData.score.trust.signals.filter((s) => s.found).length + "/" + currentData.score.trust.signals.length],
     ],
-    styles: { fontSize: 8, cellPadding: 2, overflow: "linebreak" },
+    styles: { fontSize: 9, cellPadding: 3, overflow: "linebreak" },
     headStyles: { fillColor: [99, 102, 241], textColor: 255 },
   });
   y = doc.lastAutoTable.finalY + 10;
@@ -704,15 +704,15 @@ function downloadFullPDF() {
       margin: { left: margin, right: margin },
       head: [["#", "Fix", "Scope", "Impact", "Effort", "Dimension", "Why"]],
       body: fixRows,
-      styles: { fontSize: 7, cellPadding: 1.5, overflow: "linebreak" },
+      styles: { fontSize: 8, cellPadding: 3, overflow: "linebreak", cellWidth: "wrap" },
       headStyles: { fillColor: [99, 102, 241], textColor: 255 },
       columnStyles: {
-        0: { cellWidth: 8 },
-        1: { cellWidth: 32 },
-        2: { cellWidth: 18 },
-        3: { cellWidth: 14 },
-        4: { cellWidth: 16 },
-        5: { cellWidth: 20 },
+        0: { cellWidth: 10 },
+        1: { cellWidth: "auto" },
+        2: { cellWidth: 24 },
+        3: { cellWidth: 20 },
+        4: { cellWidth: 22 },
+        5: { cellWidth: 28 },
         6: { cellWidth: "auto" },
       },
       didParseCell: function(data) {
@@ -740,15 +740,15 @@ function downloadFullPDF() {
     margin: { left: margin, right: margin },
     head: [["Dimension", "Signal", "Found", "Pts", "Explanation", "Quote"]],
     body: evidenceRows,
-    styles: { fontSize: 7, cellPadding: 1.5, overflow: "linebreak" },
+    styles: { fontSize: 8, cellPadding: 3, overflow: "linebreak", cellWidth: "wrap" },
     headStyles: { fillColor: [99, 102, 241], textColor: 255 },
     columnStyles: {
-      0: { cellWidth: 22 },
-      1: { cellWidth: 30 },
-      2: { cellWidth: 10 },
-      3: { cellWidth: 10 },
+      0: { cellWidth: 28 },
+      1: { cellWidth: 42 },
+      2: { cellWidth: 14 },
+      3: { cellWidth: 12 },
       4: { cellWidth: "auto" },
-      5: { cellWidth: 40 },
+      5: { cellWidth: "auto" },
     },
     didParseCell: function(data) {
       if (data.section === "body" && data.column.index === 2) {
@@ -771,15 +771,15 @@ function downloadFullPDF() {
       margin: { left: margin, right: margin },
       head: [["#", "Claim", "Type", "Grade", "Source", "Explanation"]],
       body: claimRows,
-      styles: { fontSize: 7, cellPadding: 1.5, overflow: "linebreak" },
+      styles: { fontSize: 8, cellPadding: 3, overflow: "linebreak", cellWidth: "wrap" },
       headStyles: { fillColor: [99, 102, 241], textColor: 255 },
       columnStyles: {
-        0: { cellWidth: 8 },
+        0: { cellWidth: 10 },
         1: { cellWidth: "auto" },
-        2: { cellWidth: 20 },
-        3: { cellWidth: 22 },
-        4: { cellWidth: 35 },
-        5: { cellWidth: 35 },
+        2: { cellWidth: 26 },
+        3: { cellWidth: 28 },
+        4: { cellWidth: "auto" },
+        5: { cellWidth: "auto" },
       },
       didParseCell: function(data) {
         if (data.section === "body" && data.column.index === 3) {
@@ -805,11 +805,11 @@ function downloadFullPDF() {
       margin: { left: margin, right: margin },
       head: [["Rule", "Severity", "Flagged Text", "Explanation", "Suggested Fix"]],
       body: compRows,
-      styles: { fontSize: 7, cellPadding: 1.5, overflow: "linebreak" },
+      styles: { fontSize: 8, cellPadding: 3, overflow: "linebreak", cellWidth: "wrap" },
       headStyles: { fillColor: [99, 102, 241], textColor: 255 },
       columnStyles: {
-        0: { cellWidth: 25 },
-        1: { cellWidth: 16 },
+        0: { cellWidth: 35 },
+        1: { cellWidth: 20 },
         2: { cellWidth: "auto" },
         3: { cellWidth: "auto" },
         4: { cellWidth: "auto" },
