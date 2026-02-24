@@ -467,7 +467,7 @@ function generateColoredXLS(title, headers, rows, colorFn) {
   let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:spreadsheet" xmlns="http://www.w3.org/TR/REC-html40">
 <head><meta charset="utf-8">
 <style>
-  td, th { font-family: Calibri, sans-serif; font-size: 11pt; padding: 4px 8px; border: 1px solid #ccc; }
+  td, th { font-family: Calibri, sans-serif; font-size: 11pt; padding: 4px 8px; border: 1px solid #ccc; white-space: pre-wrap; word-wrap: break-word; vertical-align: top; }
   th { background: #1a1d27; color: #fff; font-weight: bold; text-align: left; }
 </style></head><body>
 <h2>${esc(title)}</h2>`;
@@ -687,7 +687,7 @@ function downloadFullPDF() {
       ["Authoritativeness", currentData.score.authoritativeness.score, 25, currentData.score.authoritativeness.signals.filter((s) => s.found).length + "/" + currentData.score.authoritativeness.signals.length],
       ["Trust", currentData.score.trust.score, 25, currentData.score.trust.signals.filter((s) => s.found).length + "/" + currentData.score.trust.signals.length],
     ],
-    styles: { fontSize: 8, cellPadding: 2 },
+    styles: { fontSize: 8, cellPadding: 2, overflow: "linebreak" },
     headStyles: { fillColor: [99, 102, 241], textColor: 255 },
   });
   y = doc.lastAutoTable.finalY + 10;
@@ -697,22 +697,22 @@ function downloadFullPDF() {
     sectionTitle("Priority Fixes (" + currentData.recommendations.length + ")");
     const fixRows = currentData.recommendations.map((r, i) => {
       const scopeLabel = SCOPE_META[r.scope] ? SCOPE_META[r.scope].label : "Page Level";
-      return [i + 1, r.title, scopeLabel, r.impact, r.effort, r.dimension, r.why_it_matters.substring(0, 80)];
+      return [i + 1, r.title, scopeLabel, r.impact, r.effort, r.dimension, r.why_it_matters];
     });
     doc.autoTable({
       startY: y,
       margin: { left: margin, right: margin },
       head: [["#", "Fix", "Scope", "Impact", "Effort", "Dimension", "Why"]],
       body: fixRows,
-      styles: { fontSize: 7, cellPadding: 1.5 },
+      styles: { fontSize: 7, cellPadding: 1.5, overflow: "linebreak" },
       headStyles: { fillColor: [99, 102, 241], textColor: 255 },
       columnStyles: {
         0: { cellWidth: 8 },
-        1: { cellWidth: 35 },
-        2: { cellWidth: 20 },
-        3: { cellWidth: 15 },
-        4: { cellWidth: 18 },
-        5: { cellWidth: 22 },
+        1: { cellWidth: 32 },
+        2: { cellWidth: 18 },
+        3: { cellWidth: 14 },
+        4: { cellWidth: 16 },
+        5: { cellWidth: 20 },
         6: { cellWidth: "auto" },
       },
       didParseCell: function(data) {
@@ -732,16 +732,24 @@ function downloadFullPDF() {
   const evidenceRows = [];
   ["trust", "experience", "expertise", "authoritativeness"].forEach((dim) => {
     currentData.score[dim].signals.forEach((s) => {
-      evidenceRows.push([dim.charAt(0).toUpperCase() + dim.slice(1), s.signal, s.found ? "✓" : "✗", s.points.toFixed(1), (s.explanation || "").substring(0, 60)]);
+      evidenceRows.push([dim.charAt(0).toUpperCase() + dim.slice(1), s.signal, s.found ? "✓" : "✗", s.points.toFixed(1), s.explanation || "", s.quote || ""]);
     });
   });
   doc.autoTable({
     startY: y,
     margin: { left: margin, right: margin },
-    head: [["Dimension", "Signal", "Found", "Pts", "Explanation"]],
+    head: [["Dimension", "Signal", "Found", "Pts", "Explanation", "Quote"]],
     body: evidenceRows,
-    styles: { fontSize: 7, cellPadding: 1.5 },
+    styles: { fontSize: 7, cellPadding: 1.5, overflow: "linebreak" },
     headStyles: { fillColor: [99, 102, 241], textColor: 255 },
+    columnStyles: {
+      0: { cellWidth: 22 },
+      1: { cellWidth: 30 },
+      2: { cellWidth: 10 },
+      3: { cellWidth: 10 },
+      4: { cellWidth: "auto" },
+      5: { cellWidth: 40 },
+    },
     didParseCell: function(data) {
       if (data.section === "body" && data.column.index === 2) {
         data.cell.styles.textColor = data.cell.raw === "✓" ? [22, 163, 74] : [220, 38, 38];
@@ -755,16 +763,24 @@ function downloadFullPDF() {
   if (audit && audit.total_claims > 0) {
     sectionTitle("Claims Audit (" + audit.total_claims + " claims)");
     const claimRows = audit.claims.map((c, i) => [
-      i + 1, c.text.substring(0, 60), c.claim_type.replace(/_/g, " "),
-      c.evidence_grade.replace(/_/g, " "), c.nearest_citation ? c.nearest_citation.substring(0, 40) : "None"
+      i + 1, c.text, c.claim_type.replace(/_/g, " "),
+      c.evidence_grade.replace(/_/g, " "), c.nearest_citation || "None", c.explanation || ""
     ]);
     doc.autoTable({
       startY: y,
       margin: { left: margin, right: margin },
-      head: [["#", "Claim", "Type", "Grade", "Source"]],
+      head: [["#", "Claim", "Type", "Grade", "Source", "Explanation"]],
       body: claimRows,
-      styles: { fontSize: 7, cellPadding: 1.5 },
+      styles: { fontSize: 7, cellPadding: 1.5, overflow: "linebreak" },
       headStyles: { fillColor: [99, 102, 241], textColor: 255 },
+      columnStyles: {
+        0: { cellWidth: 8 },
+        1: { cellWidth: "auto" },
+        2: { cellWidth: 20 },
+        3: { cellWidth: 22 },
+        4: { cellWidth: 35 },
+        5: { cellWidth: 35 },
+      },
       didParseCell: function(data) {
         if (data.section === "body" && data.column.index === 3) {
           const grade = data.cell.raw;
@@ -782,15 +798,22 @@ function downloadFullPDF() {
   if (currentData.score.compliance_flags.length) {
     sectionTitle("Compliance Flags (" + currentData.score.compliance_flags.length + ")");
     const compRows = currentData.score.compliance_flags.map((f) => [
-      f.rule, f.severity, f.text.substring(0, 50), f.explanation.substring(0, 50), f.fix.substring(0, 50)
+      f.rule, f.severity, f.text, f.explanation, f.fix
     ]);
     doc.autoTable({
       startY: y,
       margin: { left: margin, right: margin },
-      head: [["Rule", "Severity", "Text", "Explanation", "Fix"]],
+      head: [["Rule", "Severity", "Flagged Text", "Explanation", "Suggested Fix"]],
       body: compRows,
-      styles: { fontSize: 7, cellPadding: 1.5 },
+      styles: { fontSize: 7, cellPadding: 1.5, overflow: "linebreak" },
       headStyles: { fillColor: [99, 102, 241], textColor: 255 },
+      columnStyles: {
+        0: { cellWidth: 25 },
+        1: { cellWidth: 16 },
+        2: { cellWidth: "auto" },
+        3: { cellWidth: "auto" },
+        4: { cellWidth: "auto" },
+      },
     });
   }
 
