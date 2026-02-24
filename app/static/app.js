@@ -536,7 +536,7 @@ function downloadEvidenceSpreadsheet() {
 
   dims.forEach((d) => {
     d.data.signals.forEach((s) => {
-      rows.push([d.label, s.signal, s.found ? "✓ Yes" : "✗ No", s.points.toFixed(1), s.explanation, s.quote || ""]);
+      rows.push([d.label, s.signal, s.found ? "Yes" : "No", s.points.toFixed(1), s.explanation, s.quote || ""]);
     });
   });
 
@@ -544,7 +544,7 @@ function downloadEvidenceSpreadsheet() {
     "E-E-A-T Evidence View — Score: " + currentData.score.overall + "/100",
     headers,
     rows,
-    (row) => row[2].startsWith("✓") ? "#d4edda" : "#f8d7da"
+    (row) => row[2] === "Yes" ? "#d4edda" : "#f8d7da"
   );
   downloadXLS(html, "eeat-evidence-view.xls");
 }
@@ -732,7 +732,7 @@ function downloadFullPDF() {
   const evidenceRows = [];
   ["trust", "experience", "expertise", "authoritativeness"].forEach((dim) => {
     currentData.score[dim].signals.forEach((s) => {
-      evidenceRows.push([dim.charAt(0).toUpperCase() + dim.slice(1), s.signal, s.found ? "✓" : "✗", s.points.toFixed(1), s.explanation || "", s.quote || ""]);
+      evidenceRows.push([dim.charAt(0).toUpperCase() + dim.slice(1), s.signal, s.found ? "Yes" : "No", s.points.toFixed(1), s.explanation || "", s.quote || ""]);
     });
   });
   doc.autoTable({
@@ -752,7 +752,7 @@ function downloadFullPDF() {
     },
     didParseCell: function(data) {
       if (data.section === "body" && data.column.index === 2) {
-        data.cell.styles.textColor = data.cell.raw === "✓" ? [22, 163, 74] : [220, 38, 38];
+        data.cell.styles.textColor = data.cell.raw === "Yes" ? [22, 163, 74] : [220, 38, 38];
       }
     }
   });
